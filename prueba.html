@@ -1,0 +1,106 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>ArcGIS API for JavaScript Hello World App</title>
+  <style>
+    html, body, #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.17/"></script>
+
+  <script>
+    require([
+      "esri/WebMap",
+      "esri/views/MapView",
+      "esri/Graphic",
+      "esri/layers/GraphicsLayer",
+      "esri/geometry/geometryEngine"
+    ], function(WebMap, MapView, Graphic, GraphicsLayer, geometryEngine) {
+
+      var map = new WebMap({
+        portalItem: {
+          id: "24714556fd634b169c6b4494381b55a9"
+        }
+      });
+
+      view = new MapView({
+        container: "viewDiv",
+        map: map,
+      });
+
+      var polySym = {
+          type: "simple-fill",
+          color: [140, 140, 222, 0.5],
+          outline: {
+            color: [0, 0, 0, 0.5],
+            width: 2
+          }
+        };
+
+      var pointSym = {
+          type: "simple-marker",
+          color: [255, 0, 0],
+          outline: {
+            color: [255, 255, 255],
+            width: 1
+          },
+          size: 7
+        };
+
+
+      var pointLayer = new GraphicsLayer();
+      var bufferLayer = new GraphicsLayer();
+      map.addMany([pointLayer, bufferLayer]);
+
+      function bufferPoint(point) {
+        pointLayer.add(
+          new Graphic({
+            geometry: point,
+            symbol: pointSym
+          })
+        );
+
+        var buffer = geometryEngine.buffer(point, 500, 'meters');
+        bufferLayer.add(
+          new Graphic({
+            geometry: buffer,
+            symbol: polySym
+          })
+        )
+      }
+
+      function createBuffer(event, view) {
+        var point = view.toMap({
+          x: event.x,
+          y: event.y
+        });
+        if(point){
+          bufferPoint(point);
+        }
+      }
+
+      function clearBuffer() {
+        pointLayer.removeAll();
+        bufferLayer.removeAll();
+      }
+
+      view.on('click', function(event) {
+        event.stopPropagation();
+        clearBuffer();
+        createBuffer(event, view);
+      })
+
+    });
+  </script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+</body>
+</html>
