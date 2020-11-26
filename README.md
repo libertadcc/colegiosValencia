@@ -1,4 +1,4 @@
-﻿﻿# 🏫 Colegios Valencia 
+# 🏫 Colegios Valencia 
 
 Este es el código que se ha realizado durante la charla de MadridJS.
 
